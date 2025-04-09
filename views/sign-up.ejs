@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Sign Up</title>
+</head>
+<body>
+  <section class="signup-section signup-user-section">
+    <h3 id="error" class="error-comment"></h3>
+
+    <form id="user-form" class="signup-user-form">
+      <fieldset class="signup-user-form-area">
+        <label for="email">Email Address</label>
+        <input id="email" autocomplete="email" name="email" required type="text">
+      </fieldset>
+
+      <fieldset class="signup-user-form-area">
+        <label for="password">Password</label>
+        <input id="password" minlength="6" name="password" required type="password">
+        <p>Password must be at least 6 characters</p>
+      </fieldset>
+
+      <input id="submit-button" disabled type="submit" value="Sign up ⛳">
+    </form>
+  </section>
+
+  <script src="/js/sign-up.js" type="module"></script>
+</body>
+</html>
