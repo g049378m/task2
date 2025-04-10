@@ -29,7 +29,7 @@ const firebaseConfig = {
   
 
 // Firebase setup
-const firebaseApp = initializeApp(firebaseCfg);
+const firebaseApp = initializeApp(firebaseConfig);
 const firebaseAuth = getAuth();
 
 // Listeners

@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Welcome</title>
+</head>
+<body>
+  <section class="welcome-section">
+    <h1>Welcome!</h1>
+    <h2>User Area</h2>
+    <h3>User: <%= email %></h3>
+    <h4><a href="/tickets/my-tickets">My Tickets</a></h4>
+
+    <form method="post" action="/users/sign-out">
+      <input class="signout-button" type="submit" name="signout" value="Sign out"/>
+    </form>
+  </section>
+</body>
+</html>
