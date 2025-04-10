@@ -33,10 +33,14 @@ router.post('/order', allowed, async (req, res, next) => {
   const ticket = {
     user: res.locals.uid,
     visitDate,
+    ticketPrice: 20,
+    fastTrackTotal: 0,
+    fastTrackPaid: false,
     fastTrackRides: [],
-    totalPrice: 20,
-    status: "draft" 
+    usedFastTrackRides: [],
+    status: "draft"
   };
+  
 
   try {
     const result = await db.collection('tickets').insertOne(ticket);
@@ -66,7 +70,7 @@ router.get('/:id', allowed, async (req, res, next) => {
       return res.status(403).send("Ticket not found or you don’t have access to it.");
     }
 
-    const rides = await db.collection('SSP').find().toArray(); // all rides
+    const rides = await db.collection('SSP').find().toArray(); 
 
     res.render('ticket-view', { ticket, rides });
   } catch (err) {
@@ -77,24 +81,40 @@ router.get('/:id', allowed, async (req, res, next) => {
 router.post('/:id/add-ride', allowed, async (req, res, next) => {
   const ticketId = req.params.id;
   const rideName = req.body.rideName;
+  const today = new Date().toISOString().split("T")[0];
 
   try {
     const ride = await db.collection('SSP').findOne({ name: rideName });
     if (!ride) return res.status(400).send("Ride not found");
 
-    const result = await db.collection('tickets').updateOne(
-      { _id: new ObjectId(ticketId), user: res.locals.uid },
+    const ticket = await db.collection('tickets').findOne({
+      _id: new ObjectId(ticketId),
+      user: res.locals.uid
+    });
+
+    if (!ticket) return res.status(404).send("Ticket not found");
+
+   
+    if (ticket.visitDate <= today) {
+      return res.status(400).send("You can't add rides to past or today's ticket.");
+    }
+
+    await db.collection('tickets').updateOne(
+      { _id: new ObjectId(ticketId) },
       {
-        $push: { fastTrackRides: ride },
-        $inc: { totalPrice: ride.fastTrackPrice }
+        $push: { fastTrackRides: { $each: rides } },
+        $inc: { fastTrackTotal: totalExtra },
+        $set: { fastTrackPaid: true }
       }
     );
+    
 
     res.redirect(`/tickets/${ticketId}`);
   } catch (err) {
     next(err);
   }
 });
+
 
 router.post('/:id/confirm', allowed, async (req, res, next) => {
   const ticketId = req.params.id;
@@ -137,16 +157,88 @@ router.post('/:id/use-ride', allowed, async (req, res, next) => {
   const rideName = req.body.rideName;
 
   try {
-    await db.collection('tickets').insertOne(//insert
+
+    await db.collection('tickets').updateOne(
       { _id: new ObjectId(ticketId), user: res.locals.uid },
-      { $pull: { fastTrackRides: { name: rideName } } }
+      {
+        $pull: { fastTrackRides: { name: rideName } },
+        $push: { usedFastTrackRides: rideName }
+      }
     );
+    
+
 
     res.redirect(`/tickets/${ticketId}/use-rides`);
   } catch (err) {
     next(err);
   }
 });
+
+router.get('/:id/select-rides', allowed, async (req, res, next) => {
+  const ticketId = req.params.id;
+  const today = new Date().toISOString().split("T")[0];
+
+  try {
+    const ticket = await db.collection('tickets').findOne({
+      _id: new ObjectId(ticketId),
+      user: res.locals.uid
+    });
+
+    if (!ticket || ticket.visitDate <= today) {
+      return res.status(400).send("This ticket can't be modified.");
+    }
+
+    const rides = await db.collection('SSP').find().toArray();
+    res.render('select-rides', { ticket, rides });
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.post('/:id/select-rides', allowed, async (req, res, next) => {
+  const ticketId = req.params.id;
+  const rideNames = req.body.rideNames;
+  const today = new Date().toISOString().split("T")[0];
+
+  try {
+    const ticket = await db.collection('tickets').findOne({
+      _id: new ObjectId(ticketId),
+      user: res.locals.uid
+    });
+
+    if (!ticket || ticket.visitDate < today) {
+      return res.status(400).send("This ticket can't be modified.");
+    }
+
+    // Make sure it's always an array
+    const selectedNames = Array.isArray(rideNames) ? rideNames : [rideNames];
+
+    // Fetch ride details from database
+    const rides = await db.collection('SSP')
+      .find({ name: { $in: selectedNames } })
+
+      .toArray();
+
+    if (!rides.length) {
+      return res.status(400).send("No valid rides selected.");
+    }
+
+    const totalExtra = rides.reduce((sum, ride) => sum + ride.fastTrackPrice, 0);
+
+    await db.collection('tickets').updateOne(
+      { _id: new ObjectId(ticketId) },
+      {
+        $push: { fastTrackRides: { $each: rides } },
+        $inc: { totalPrice: totalExtra }
+      }
+    );
+
+    res.redirect(`/tickets/${ticketId}`);
+  } catch (err) {
+    next(err);
+  }
+});
+
 
 
 

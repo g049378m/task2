@@ -1,9 +1,18 @@
-<%- include("partials/header") %>
-<%- include("partials/nav") %>
-
 <h2>🎢 Use Your Fast-Track Rides</h2>
 <p><strong>Date:</strong> <%= ticket.visitDate %></p>
 
+<h3>Used Rides</h3>
+<% if (ticket.usedFastTrackRides && ticket.usedFastTrackRides.length > 0) { %>
+  <ul>
+    <% ticket.usedFastTrackRides.forEach(name => { %>
+      <li><%= name %></li>
+    <% }) %>
+  </ul>
+<% } else { %>
+  <p>No rides used yet.</p>
+<% } %>
+
+<h3>Rides Remaining</h3>
 <% if (ticket.fastTrackRides.length === 0) { %>
   <p>No fast-track rides left on this ticket.</p>
 <% } else { %>
@@ -19,5 +28,3 @@
     <% }) %>
   </ul>
 <% } %>
-
-<%- include("partials/footer") %>

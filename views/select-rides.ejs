@@ -1,0 +1,18 @@
+<%- include("partials/header") %>
+<%- include("partials/nav") %>
+
+<h2> Select Fast-Track Rides for <%= ticket.visitDate %></h2>
+
+<form method="post" action="/tickets/<%= ticket._id %>/select-rides">
+  <% rides.forEach(ride => { %>
+    <div>
+      <input type="checkbox" name="rideNames" value="<%= ride.name %>">
+      <strong><%= ride.name %></strong> – £<%= ride.fastTrackPrice.toFixed(2) %>
+      (Min height: <%= ride.minimumHeight %> cm)
+    </div>
+  <% }) %>
+
+  <input type="submit" value="🎟 Finalise Fast-Track Selection">
+</form>
+
+<%- include("partials/footer") %>

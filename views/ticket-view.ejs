@@ -4,7 +4,11 @@
 <h2>Your Ticket</h2>
 
 <p><strong>Visit Date:</strong> <%= ticket.visitDate %></p>
-<p><strong>Total Price:</strong> £<%= ticket.totalPrice.toFixed(2) %></p>
+
+<p><strong>Ticket Price:</strong> £<%= ticket.ticketPrice.toFixed(2) %></p>
+<p><strong>Fast-Track Total:</strong> £<%= ticket.fastTrackTotal.toFixed(2) %></p>
+<p><strong>Total Price:</strong> £<%= (ticket.ticketPrice + ticket.fastTrackTotal).toFixed(2) %></p>
+
 <p><strong>Fast-Track Rides:</strong>
   <% if (ticket.fastTrackRides.length > 0) { %>
     <ul>
@@ -16,28 +20,25 @@
     None added yet.
   <% } %>
 </p>
+
 <hr>
-<% 
-  const today = new Date().toISOString().split("T")[0]; 
-  const editable = ticket.status === "draft" && ticket.visitDate > today;
+
+<%
+  const today = new Date().toISOString().split("T")[0];
+  const editable = ticket.visitDate > today;
 %>
 
 <% if (editable) { %>
-  <h3>Add a Fast-Track Ride</h3>
-  <form method="post" action="/tickets/<%= ticket._id %>/add-ride">
-    <select name="rideName" required>
-      <% rides.forEach((ride) => { %>
-        <option value="<%= ride.name %>">
-          <%= ride.name %> (£<%= ride.fastTrackPrice.toFixed(2) %>)
-        </option>
-      <% }) %>
-    </select>
-    <input type="submit" value="Add Ride">
-  </form>
+  <p>
+    <a href="/tickets/<%= ticket._id %>/select-rides">
+      ➕ Add or View Fast-Track Rides
+    </a>
+  </p>
 <% } else { %>
   <p><em>You cannot add rides to this ticket anymore.</em></p>
 <% } %>
 
+<p><strong>Fast-Track Paid:</strong> <%= ticket.fastTrackPaid ? "Yes" : "No" %></p>
 <p><strong>Status:</strong> <%= ticket.status %></p>
 
 <% if (ticket.status === "draft") { %>
@@ -47,7 +48,5 @@
 <% } else { %>
   <p>This ticket has been purchased.</p>
 <% } %>
-
-
 
 <%- include("partials/footer") %>
