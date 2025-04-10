@@ -17,16 +17,26 @@
   <% } %>
 </p>
 <hr>
-<h3>Add a Fast-Track Ride</h3>
+<% 
+  const today = new Date().toISOString().split("T")[0]; 
+  const editable = ticket.status === "draft" && ticket.visitDate > today;
+%>
 
-<form method="post" action="/tickets/<%= ticket._id %>/add-ride">
-  <select name="rideName" required>
-    <% rides.forEach((ride) => { %>
-      <option value="<%= ride.name %>"><%= ride.name %> (£<%= ride.fastTrackPrice.toFixed(2) %>)</option>
-    <% }) %>
-  </select>
-  <input type="submit" value="Add Ride">
-</form>
+<% if (editable) { %>
+  <h3>Add a Fast-Track Ride</h3>
+  <form method="post" action="/tickets/<%= ticket._id %>/add-ride">
+    <select name="rideName" required>
+      <% rides.forEach((ride) => { %>
+        <option value="<%= ride.name %>">
+          <%= ride.name %> (£<%= ride.fastTrackPrice.toFixed(2) %>)
+        </option>
+      <% }) %>
+    </select>
+    <input type="submit" value="Add Ride">
+  </form>
+<% } else { %>
+  <p><em>You cannot add rides to this ticket anymore.</em></p>
+<% } %>
 
 <p><strong>Status:</strong> <%= ticket.status %></p>
 

@@ -1,0 +1,23 @@
+<%- include("partials/header") %>
+<%- include("partials/nav") %>
+
+<h2>🎢 Use Your Fast-Track Rides</h2>
+<p><strong>Date:</strong> <%= ticket.visitDate %></p>
+
+<% if (ticket.fastTrackRides.length === 0) { %>
+  <p>No fast-track rides left on this ticket.</p>
+<% } else { %>
+  <ul>
+    <% ticket.fastTrackRides.forEach(ride => { %>
+      <li>
+        <%= ride.name %>
+        <form method="post" action="/tickets/<%= ticket._id %>/use-ride" style="display:inline;">
+          <input type="hidden" name="rideName" value="<%= ride.name %>">
+          <input type="submit" value="Use">
+        </form>
+      </li>
+    <% }) %>
+  </ul>
+<% } %>
+
+<%- include("partials/footer") %>

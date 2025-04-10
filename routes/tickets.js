@@ -111,6 +111,43 @@ router.post('/:id/confirm', allowed, async (req, res, next) => {
   }
 });
 
+router.get('/:id/use-rides', allowed, async (req, res, next) => {
+  const ticketId = req.params.id;
+  const today = new Date().toISOString().split("T")[0];
+
+  try {
+    const ticket = await db.collection('tickets').findOne({ _id: new ObjectId(ticketId) });
+
+    if (!ticket || ticket.user !== res.locals.uid) {
+      return res.status(403).send("Ticket not found or access denied.");
+    }
+
+    if (ticket.visitDate !== today || ticket.status !== "confirmed") {
+      return res.status(400).send("Ride usage only allowed on visit day and for confirmed tickets.");
+    }
+
+    res.render('use-rides', { ticket });
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.post('/:id/use-ride', allowed, async (req, res, next) => {
+  const ticketId = req.params.id;
+  const rideName = req.body.rideName;
+
+  try {
+    await db.collection('tickets').insertOne(//insert
+      { _id: new ObjectId(ticketId), user: res.locals.uid },
+      { $pull: { fastTrackRides: { name: rideName } } }
+    );
+
+    res.redirect(`/tickets/${ticketId}/use-rides`);
+  } catch (err) {
+    next(err);
+  }
+});
+
 
 
 export default router;
