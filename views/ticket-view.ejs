@@ -16,5 +16,28 @@
     None added yet.
   <% } %>
 </p>
+<hr>
+<h3>Add a Fast-Track Ride</h3>
+
+<form method="post" action="/tickets/<%= ticket._id %>/add-ride">
+  <select name="rideName" required>
+    <% rides.forEach((ride) => { %>
+      <option value="<%= ride.name %>"><%= ride.name %> (£<%= ride.fastTrackPrice.toFixed(2) %>)</option>
+    <% }) %>
+  </select>
+  <input type="submit" value="Add Ride">
+</form>
+
+<p><strong>Status:</strong> <%= ticket.status %></p>
+
+<% if (ticket.status === "draft") { %>
+  <form method="post" action="/tickets/<%= ticket._id %>/confirm">
+    <input type="submit" value="Confirm Purchase">
+  </form>
+<% } else { %>
+  <p>This ticket has been purchased.</p>
+<% } %>
+
+
 
 <%- include("partials/footer") %>

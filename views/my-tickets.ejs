@@ -1,0 +1,20 @@
+<%- include("partials/header") %>
+<%- include("partials/nav") %>
+
+<h2>My Tickets</h2>
+
+<% if (tickets.length === 0) { %>
+  <p>You have no tickets yet.</p>
+<% } else { %>
+  <ul>
+    <% tickets.forEach(ticket => { %>
+      <li>
+        <a href="/tickets/<%= ticket._id %>">
+          Ticket for <%= ticket.visitDate %>
+        </a> – £<%= ticket.totalPrice.toFixed(2) %>
+      </li>
+    <% }) %>
+  </ul>
+<% } %>
+
+<%- include("partials/footer") %>

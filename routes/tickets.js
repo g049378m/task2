@@ -10,7 +10,7 @@ const router = express.Router();
 // Middleware to check session
 async function allowed(req, res, next) {
   const sessionCookie = req.cookies.session || '';
-  console.log("🔐 Session Cookie:", sessionCookie); 
+  console.log("Session Cookie:", sessionCookie); 
   try {
     const decoded = await fb.auth().verifySessionCookie(sessionCookie, true);
     res.locals.uid = decoded.uid;
@@ -34,12 +34,22 @@ router.post('/order', allowed, async (req, res, next) => {
     user: res.locals.uid,
     visitDate,
     fastTrackRides: [],
-    totalPrice: 20
+    totalPrice: 20,
+    status: "draft" 
   };
 
   try {
     const result = await db.collection('tickets').insertOne(ticket);
     res.redirect(`/tickets/${result.insertedId}`);
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.get('/my-tickets', allowed, async (req, res, next) => {
+  try {
+    const tickets = await db.collection('tickets').find({ user: res.locals.uid }).toArray();
+    res.render('my-tickets', { tickets });
   } catch (err) {
     next(err);
   }
@@ -56,10 +66,51 @@ router.get('/:id', allowed, async (req, res, next) => {
       return res.status(403).send("Ticket not found or you don’t have access to it.");
     }
 
-    res.render('ticket-view', { ticket });
+    const rides = await db.collection('SSP').find().toArray(); // all rides
+
+    res.render('ticket-view', { ticket, rides });
   } catch (err) {
     next(err);
   }
 });
+
+router.post('/:id/add-ride', allowed, async (req, res, next) => {
+  const ticketId = req.params.id;
+  const rideName = req.body.rideName;
+
+  try {
+    const ride = await db.collection('SSP').findOne({ name: rideName });
+    if (!ride) return res.status(400).send("Ride not found");
+
+    const result = await db.collection('tickets').updateOne(
+      { _id: new ObjectId(ticketId), user: res.locals.uid },
+      {
+        $push: { fastTrackRides: ride },
+        $inc: { totalPrice: ride.fastTrackPrice }
+      }
+    );
+
+    res.redirect(`/tickets/${ticketId}`);
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.post('/:id/confirm', allowed, async (req, res, next) => {
+  const ticketId = req.params.id;
+
+  try {
+    const result = await db.collection('tickets').updateOne(
+      { _id: new ObjectId(ticketId), user: res.locals.uid },
+      { $set: { status: "confirmed" } }
+    );
+
+    res.redirect(`/tickets/${ticketId}`);
+  } catch (err) {
+    next(err);
+  }
+});
+
+
 
 export default router;
