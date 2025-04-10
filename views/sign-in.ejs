@@ -1,0 +1,25 @@
+<%- include("partials/header") %>
+<%- include("partials/nav") %>
+
+<section class="signin-section">
+  <h2>Sign In</h2>
+  <h3 id="error" class="error-comment"></h3>
+
+  <form id="signin-form">
+    <fieldset>
+      <label for="email">Email:</label>
+      <input id="email" name="email" required type="email">
+    </fieldset>
+
+    <fieldset>
+      <label for="password">Password:</label>
+      <input id="password" name="password" required type="password">
+    </fieldset>
+
+    <input id="submit-button" type="submit" value="Sign in">
+  </form>
+</section>
+
+<script src="/js/sign-in.js" type="module"></script>
+
+<%- include("partials/footer") %>

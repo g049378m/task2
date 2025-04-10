@@ -1,0 +1,13 @@
+<%- include("partials/header") %>
+<%- include("partials/nav") %>
+
+<h2>Book a Ticket</h2>
+
+<form method="post" action="/tickets/order">
+  <label for="visitDate">Select your visit date:</label>
+  <input type="date" id="visitDate" name="visitDate" required min="<%= new Date().toISOString().split('T')[0] %>">
+  <br><br>
+  <input type="submit" value="Book Ticket (£20)">
+</form>
+
+<%- include("partials/footer") %>

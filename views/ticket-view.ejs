@@ -1,0 +1,20 @@
+<%- include("partials/header") %>
+<%- include("partials/nav") %>
+
+<h2>Your Ticket</h2>
+
+<p><strong>Visit Date:</strong> <%= ticket.visitDate %></p>
+<p><strong>Total Price:</strong> £<%= ticket.totalPrice.toFixed(2) %></p>
+<p><strong>Fast-Track Rides:</strong>
+  <% if (ticket.fastTrackRides.length > 0) { %>
+    <ul>
+      <% ticket.fastTrackRides.forEach((ride) => { %>
+        <li><%= ride.name %></li>
+      <% }) %>
+    </ul>
+  <% } else { %>
+    None added yet.
+  <% } %>
+</p>
+
+<%- include("partials/footer") %>
