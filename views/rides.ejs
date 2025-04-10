@@ -1,0 +1,14 @@
+<%- include("partials/header") %>
+<%- include("partials/nav") %>
+
+<h2>Available Rides</h2>
+<ul>
+  <% rides.forEach((ride) => { %>
+    <li>
+      <strong><%= ride.name %></strong> – Fast-Track: £<%= ride.fastTrackPrice.toFixed(2) %>
+      <% if (ride.minimumHeight) { %> (Min height: <%= ride.minimumHeight %>cm) <% } %>
+    </li>
+  <% }) %>
+</ul>
+
+<%- include("partials/footer") %>

@@ -6,6 +6,8 @@ import { fileURLToPath } from 'url';
 import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
 import userRoutes from './routes/users.js';
+import rideRoutes from './routes/rides.js';
+
 
 
 const __filename = fileURLToPath(import.meta.url);
@@ -20,6 +22,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cookieParser());
 app.use('/users', userRoutes);
+app.use('/rides', rideRoutes);
 
 
 // View Engine
