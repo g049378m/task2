@@ -11,7 +11,7 @@
       <li>
         <a href="/tickets/<%= ticket._id %>">
           Ticket for <%= ticket.visitDate %>
-        </a> – £<%= ticket.totalPrice.toFixed(2) %>
+        </a> – £<%= (ticket.ticketPrice + ticket.fastTrackTotal).toFixed(2) %>        
       </li>
     <% }) %>
   </ul>

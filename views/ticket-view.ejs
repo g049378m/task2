@@ -25,13 +25,18 @@
 
 <%
   const today = new Date().toISOString().split("T")[0];
-  const editable = ticket.visitDate > today;
+  const editable = ticket.visitDate >= today;
 %>
 
 <% if (editable) { %>
   <p>
     <a href="/tickets/<%= ticket._id %>/select-rides">
-      ➕ Add or View Fast-Track Rides
+      Add or View Fast-Track Rides
+    </a>
+  </p>
+  <p>
+    <a href="/tickets/<%= ticket._id %>/use-rides">
+      Use Fast-Track Rides
     </a>
   </p>
 <% } else { %>

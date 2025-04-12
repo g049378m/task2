@@ -1,30 +1,46 @@
-<h2>🎢 Use Your Fast-Track Rides</h2>
-<p><strong>Date:</strong> <%= ticket.visitDate %></p>
+<%- include("partials/header") %>
+  <%- include("partials/nav") %>
 
-<h3>Used Rides</h3>
-<% if (ticket.usedFastTrackRides && ticket.usedFastTrackRides.length > 0) { %>
-  <ul>
-    <% ticket.usedFastTrackRides.forEach(name => { %>
-      <li><%= name %></li>
-    <% }) %>
-  </ul>
-<% } else { %>
-  <p>No rides used yet.</p>
-<% } %>
+    <h2>Use Fast-Track Rides</h2>
 
-<h3>Rides Remaining</h3>
-<% if (ticket.fastTrackRides.length === 0) { %>
-  <p>No fast-track rides left on this ticket.</p>
-<% } else { %>
-  <ul>
-    <% ticket.fastTrackRides.forEach(ride => { %>
-      <li>
-        <%= ride.name %>
-        <form method="post" action="/tickets/<%= ticket._id %>/use-ride" style="display:inline;">
-          <input type="hidden" name="rideName" value="<%= ride.name %>">
-          <input type="submit" value="Use">
-        </form>
-      </li>
-    <% }) %>
-  </ul>
-<% } %>
+    <p><strong>Visit Date:</strong>
+      <%= ticket.visitDate %>
+    </p>
+
+    <% if (ticket.fastTrackRides.length===0) { %>
+      <p>No fast-track rides left to use.</p>
+      <% } else { %>
+        <h3>Available Fast-Track Rides</h3>
+
+        <% if (ticket.fastTrackRides.length> 0) { %>
+          <div style="margin-bottom: 1rem;">
+            <% ticket.fastTrackRides.forEach((ride)=> { %>
+              <form method="post" action="/tickets/<%= ticket._id %>/use-ride" class="ride-form">
+                <strong>
+                  <%= ride.name %>
+                </strong>
+                <input type="hidden" name="rideName" value="<%= ride.name %>">
+                <button type="submit">Use Now</button>
+              </form>
+              <% }) %>
+          </div>
+          <% } else { %>
+            <p>No fast-track rides left to use.</p>
+            <% } %>
+              <% } %>
+
+                <hr>
+                <p><strong>Used Fast-Track Rides:</strong></p>
+                <% if (ticket.usedFastTrackRides.length===0) { %>
+                  <p>None used yet.</p>
+                  <% } else { %>
+                    <ul>
+                      <% ticket.usedFastTrackRides.forEach((rideName)=> { %>
+                        <li>
+                          <%= rideName %>
+                        </li>
+                        <% }) %>
+                    </ul>
+                    <% } %>
+
+                      <%- include("partials/footer") %>

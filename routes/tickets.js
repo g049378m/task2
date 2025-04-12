@@ -67,7 +67,9 @@ router.get('/:id', allowed, async (req, res, next) => {
     const ticket = await db.collection('tickets').findOne({ _id: new ObjectId(ticketId) });
 
     if (!ticket || ticket.user !== res.locals.uid) {
-      return res.status(403).send("Ticket not found or you don’t have access to it.");
+      const error = new Error("Ticket not found or you don’t have access to it.");
+    error.status = 403;
+    return next(error);
     }
 
     const rides = await db.collection('SSP').find().toArray(); 
@@ -139,11 +141,15 @@ router.get('/:id/use-rides', allowed, async (req, res, next) => {
     const ticket = await db.collection('tickets').findOne({ _id: new ObjectId(ticketId) });
 
     if (!ticket || ticket.user !== res.locals.uid) {
-      return res.status(403).send("Ticket not found or access denied.");
+      const error = new Error("Ticket not found or you don’t have access to it.");
+  error.status = 403;
+  return next(error);
     }
 
     if (ticket.visitDate !== today || ticket.status !== "confirmed") {
-      return res.status(400).send("Ride usage only allowed on visit day and for confirmed tickets.");
+      return res.status(403).render('error-403', {
+        message: "Ride usage only allowed on visit day and for confirmed tickets."
+      });
     }
 
     res.render('use-rides', { ticket });
@@ -152,14 +158,17 @@ router.get('/:id/use-rides', allowed, async (req, res, next) => {
   }
 });
 
+
+
 router.post('/:id/use-ride', allowed, async (req, res, next) => {
   const ticketId = req.params.id;
   const rideName = req.body.rideName;
 
   try {
-
+    console.log("🎯 ticketId received:", ticketId);
     await db.collection('tickets').updateOne(
-      { _id: new ObjectId(ticketId), user: res.locals.uid },
+      {  
+        _id: new ObjectId(ticketId), user: res.locals.uid },
       {
         $pull: { fastTrackRides: { name: rideName } },
         $push: { usedFastTrackRides: rideName }
@@ -184,7 +193,7 @@ router.get('/:id/select-rides', allowed, async (req, res, next) => {
       user: res.locals.uid
     });
 
-    if (!ticket || ticket.visitDate <= today) {
+    if (!ticket || ticket.visitDate < today) {
       return res.status(400).send("This ticket can't be modified.");
     }
 
@@ -229,7 +238,9 @@ router.post('/:id/select-rides', allowed, async (req, res, next) => {
       { _id: new ObjectId(ticketId) },
       {
         $push: { fastTrackRides: { $each: rides } },
-        $inc: { totalPrice: totalExtra }
+        $inc: { fastTrackTotal: totalExtra },
+        $set: { fastTrackPaid: true }
+
       }
     );
 

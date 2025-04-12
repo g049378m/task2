@@ -59,3 +59,13 @@ body {
     color: red;
   }
   
+  .ride-form {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 400px;
+    border: 1px solid #ccc;
+    padding: 8px;
+    margin-bottom: 6px;
+  }
+  
